@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <!-- 기본 MySQL DataSource (HikariCP 커넥션 풀 사용) -->
+  <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+    <constructor-arg>
+      <bean class="com.zaxxer.hikari.HikariConfig">
+        <property name="jdbcUrl" value="${jdbc.url}" />
+        <property name="username" value="${jdbc.username}" />
+        <property name="password" value="${jdbc.password}" />
+        <property name="driverClassName" value="${jdbc.driver}" />
+        <property name="maximumPoolSize" value="${jdbc.pool.max:20}" />
+        <property name="minimumIdle" value="${jdbc.pool.min:5}" />
+        <property name="connectionTimeout" value="30000" />
+        <property name="idleTimeout" value="600000" />
+        <property name="maxLifetime" value="1800000" />
+        <property name="autoCommit" value="true" />
+      </bean>
+    </constructor-arg>
+  </bean>
+
+  <!-- 추가 DataSource (다중 DB 지원 예제) -->
+  <bean id="dataSourceSecondary" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+    <constructor-arg>
+      <bean class="com.zaxxer.hikari.HikariConfig">
+        <property name="jdbcUrl" value="${jdbc.secondary.url}" />
+        <property name="username" value="${jdbc.secondary.username}" />
+        <property name="password" value="${jdbc.secondary.password}" />
+        <property name="driverClassName" value="${jdbc.secondary.driver}" />
+        <property name="maximumPoolSize" value="${jdbc.pool.max:20}" />
+        <property name="minimumIdle" value="${jdbc.pool.min:5}" />
+        <property name="connectionTimeout" value="30000" />
+        <property name="idleTimeout" value="600000" />
+        <property name="maxLifetime" value="1800000" />
+        <property name="autoCommit" value="true" />
+      </bean>
+    </constructor-arg>
+  </bean>
+
+  <!-- 주 SqlSessionFactory (MySQL) -->
+  <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+    <property name="dataSource" ref="dataSource" />
+    <property name="configLocation" value="classpath:mybatis/mybatis-config.xml" />
+    <property name="mapperLocations" value="classpath:mapper/mysql/**/*.xml" />
+    <property name="typeAliasesPackage" value="kr.sy.kwag2.common.vo" />
+  </bean>
+
+  <!-- 보조 SqlSessionFactory (다중 DB 지원) -->
+  <bean id="sqlSessionFactorySecondary" class="org.mybatis.spring.SqlSessionFactoryBean">
+    <property name="dataSource" ref="dataSourceSecondary" />
+    <property name="configLocation" value="classpath:mybatis/mybatis-config.xml" />
+    <property name="mapperLocations" value="classpath:mapper/mysql/**/*.xml" />
+    <property name="typeAliasesPackage" value="kr.sy.kwag2.common.vo" />
+  </bean>
+
+  <!-- SqlSessionTemplate (주) -->
+  <bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+    <constructor-arg ref="sqlSessionFactory" />
+  </bean>
+
+  <!-- SqlSessionTemplate (보조) -->
+  <bean id="sqlSessionTemplateSecondary" class="org.mybatis.spring.SqlSessionTemplate">
+    <constructor-arg ref="sqlSessionFactorySecondary" />
+  </bean>
+
+  <!-- 트랜잭션 매니저 -->
+  <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+    <property name="dataSource" ref="dataSource" />
+  </bean>
+
+  <!-- 보조 트랜잭션 매니저 -->
+  <bean id="transactionManagerSecondary" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+    <property name="dataSource" ref="dataSourceSecondary" />
+  </bean>
+
+  <!-- MultiDB 매니저 빈 -->
+  <bean id="multiDBManager" class="kr.sy.kwag2.db.manager.MultiDBManager">
+    <property name="sqlSessionTemplates">
+      <map>
+        <entry key="default" value-ref="sqlSessionTemplate" />
+        <entry key="secondary" value-ref="sqlSessionTemplateSecondary" />
+      </map>
+    </property>
+  </bean>
+
+</beans>

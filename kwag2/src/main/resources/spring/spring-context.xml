@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xmlns:aop="http://www.springframework.org/schema/aop"
+  xmlns:tx="http://www.springframework.org/schema/tx"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context.xsd
+    http://www.springframework.org/schema/aop
+    http://www.springframework.org/schema/aop/spring-aop.xsd
+    http://www.springframework.org/schema/tx
+    http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+  <!-- 프로퍼티 파일 로드 -->
+  <context:property-placeholder location="classpath:application*.properties" />
+
+  <!-- 컴포넌트 스캔 (Service, Repository 등) -->
+  <context:component-scan base-package="kr.sy.kwag2">
+    <context:exclude-filter type="regex" expression="kr\.sy\.kwag2\.api\..*" />
+    <context:exclude-filter type="regex" expression="kr\.sy\.kwag2\.config\..*" />
+  </context:component-scan>
+
+  <!-- AOP 자동 프록시 생성 -->
+  <aop:aspectj-autoproxy />
+
+  <!-- 트랜잭션 어댑터 -->
+  <tx:annotation-driven transaction-manager="transactionManager" />
+
+</beans>

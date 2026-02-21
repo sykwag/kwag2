@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+  <settings>
+    <!-- 언제스케이핑 컬럼명 -->
+    <setting name="mapUnderscoreToCamelCase" value="true" />
+    <!-- SQL 실행 캐시 사용 -->
+    <setting name="cacheEnabled" value="true" />
+    <!-- 유효하지 않은 쿼리 참조 유도 -->
+    <setting name="lazyLoadingEnabled" value="true" />
+    <setting name="aggressiveLazyLoading" value="false" />
+    <!-- JDBC 유형 자동 판별 -->
+    <setting name="jdbcTypeForNull" value="NULL" />
+    <!-- 로깅 설정 -->
+    <setting name="logImpl" value="SLF4J" />
+  </settings>
+
+  <!-- 타입 별칭 정의 -->
+  <typeAliases>
+    <package name="kr.sy.kwag2.common.vo" />
+  </typeAliases>
+
+  <!-- 플러그인 등록 -->
+  <plugins>
+    <!-- 페이징 플러그인 (PageHelper) - 선택사항 -->
+  </plugins>
+
+</configuration>

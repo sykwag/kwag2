@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kr.sy.kwag2.core.mapper.UserMapper">
+
+  <!-- 기본 컬럼 -->
+  <sql id="baseColumns">
+    user_id, username, email, phone_number, full_name, status, tenant_id,
+    created_date, modified_date, created_by, modified_by
+  </sql>
+
+  <!-- ID로 사용자 조회 -->
+  <select id="selectById" resultType="UserVO">
+    SELECT
+    <include refid="baseColumns" />
+    FROM user
+    WHERE user_id = #{id}
+    AND tenant_id = #{tenantId, jdbcType=VARCHAR}
+  </select>
+
+  <!-- 전체 사용자 조회 -->
+  <select id="selectAll" resultType="UserVO">
+    SELECT
+    <include refid="baseColumns" />
+    FROM user
+    WHERE tenant_id = #{tenantId, jdbcType=VARCHAR}
+    ORDER BY created_date DESC
+  </select>
+
+  <!-- 사용자 생성 -->
+  <insert id="insert" useGeneratedKeys="true" keyProperty="userId">
+    INSERT INTO user (
+    username, email, phone_number, full_name, status, tenant_id,
+    created_date, created_by
+    ) VALUES (
+    #{username}, #{email}, #{phoneNumber}, #{fullName}, #{status}, #{tenantId},
+    NOW(), #{createdBy}
+    )
+  </insert>
+
+  <!-- 사용자 수정 -->
+  <update id="update">
+    UPDATE user
+    SET username = #{username},
+    email = #{email},
+    phone_number = #{phoneNumber},
+    full_name = #{fullName},
+    status = #{status},
+    modified_date = NOW(),
+    modified_by = #{modifiedBy}
+    WHERE user_id = #{userId}
+    AND tenant_id = #{tenantId, jdbcType=VARCHAR}
+  </update>
+
+  <!-- 사용자 삭제 -->
+  <delete id="delete">
+    DELETE FROM user
+    WHERE user_id = #{id}
+    AND tenant_id = #{tenantId, jdbcType=VARCHAR}
+  </delete>
+
+  <!-- 건수 조회 -->
+  <select id="count" resultType="int">
+    SELECT COUNT(*) FROM user
+    WHERE tenant_id = #{tenantId, jdbcType=VARCHAR}
+  </select>
+
+  <!-- 사용자명으로 사용자 조회 -->
+  <select id="selectByUsername" resultType="UserVO">
+    SELECT
+    <include refid="baseColumns" />
+    FROM user
+    WHERE username = #{username}
+    AND tenant_id = #{tenantId, jdbcType=VARCHAR}
+  </select>
+
+  <!-- 이메일로 사용자 조회 -->
+  <select id="selectByEmail" resultType="UserVO">
+    SELECT
+    <include refid="baseColumns" />
+    FROM user
+    WHERE email = #{email}
+    AND tenant_id = #{tenantId, jdbcType=VARCHAR}
+  </select>
+
+  <!-- 테넌트별 사용자 수 -->
+  <select id="countByTenantId" resultType="int">
+    SELECT COUNT(*) FROM user
+    WHERE tenant_id = #{tenantId}
+  </select>
+
+</mapper>
